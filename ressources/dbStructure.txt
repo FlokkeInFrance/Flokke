@@ -1,0 +1,163 @@
+tCroisiere
+   idCroisiere :  INTEGER PRIMARY KEY
+   nomBateau :  TEXT
+   typeBateau :  TEXT
+   intitule :  TEXT
+   dateDepart :  INTEGER
+   dateFin :  INTEGER
+   nombreJours :  INTEGER
+   nombrePersonnes :  INTEGER
+   terminee :  BOOLEAN
+tMenutype
+   idCroisiere :  INTEGER
+   idMenuType :  INTEGER
+   nomMenuType :  TEXT
+   nombrePersonnes :  INTEGER
+tPlattype
+   idCroisiere :  INTEGER
+   idMenuType :  INTEGER
+   idPlatType :  INTEGER
+   nomPlatType :  TEXT
+   nombrePersonnes :  INTEGER
+tLieux
+   idCroisiere :  INTEGER
+   date :  INTEGER
+   lieu :  TEXT
+   amarre :  TEXT
+   contact :  TEXT
+   depannage :  BOOLEAN
+   commerce :  BOOLEAN
+tPlanning 
+   idCroisiere :  INTEGER
+   idPlanning :  INTEGER
+   dateRepas :  INTEGER
+   idMenuType :  INTEGER
+   idMenu :  INTEGER
+   numRepas :  INTEGER
+   momentRepas :  TEXT
+   nombrePersonnes :  INTEGER
+tMenu
+   idMenu :  INTEGER PRIMARY KEY
+   nomMenu :  TEXT
+   favori :  BOOLEAN
+tComposition
+   idMenu :  INTEGER
+   numero :  INTEGER
+   position :  TEXT
+   idPlat :  INTEGER
+tIComposition
+   idCroisiere :  INTEGER
+   idPlanning :  INTEGER
+   idPlatType :  INTEGER
+   idMenu :  INTEGER
+   numero :  INTEGER
+   position :  TEXT
+   idPlat :  INTEGER
+   nombrePersonnes :  INTEGER
+tPlat
+   idPlat :  INTEGER
+   titrePlat :  TEXT
+   categoriePlat :  TEXT
+   recette :  TEXT
+   auFour :  BOOLEAN
+   auFrigo :  BOOLEAN
+   tempsPreparation :  NUMERIC
+   tempsCuisson :  NUMERIC
+   nbPersonnes :  INTEGER
+   flagsNav :  INTEGER
+   flagsDiet :  INTEGER
+   idPlatInclus :  INTEGER
+   recetteBase :  BOOLEAN
+   fractionnable :  BOOLEAN
+tListeIngredients
+   idPlat :  INTEGER
+   idIngredient :  INTEGER
+   conditionnement :  TEXT
+   quantite :  NUMERIC
+   unite :  TEXT
+tListeUstensiles
+   idPlat :  INTEGER
+   idUstensile :  INTEGER
+tIngredients
+   idIngredient :  INTEGER PRIMARY KEY
+   nomIngredient :  TEXT
+   frais :  BOOLEAN
+   conditionnement :  TEXT
+   conservationFrais :  BOOLEAN
+   quantiteBase :  NUMERIC
+   unite :  TEXT
+   fractionnable :  BOOLEAN
+   limInf :  NUMERIC
+   idRayon :  INTEGER
+tRayon
+   idRayon :  INTEGER PRIMARY KEY
+   nomRayon :  TEXT
+tQuantites
+   idCroisiere :  INTEGER
+   idPlanning :  INTEGER
+   idPlat :  INTEGER
+   idIngredient :  INTEGER
+   quantite :  NUMERIC
+   unite :  TEXT
+   prepese :  BOOLEAN
+tUstensiles
+   idUstensile :  INTEGER PRIMARY KEY
+   nomUstensile :  TEXT
+tInventaire
+   idCroisiere :  INTEGER
+   idIngredient :  INTEGER
+   lieuDeRangement :  TEXT
+   conditionnement :  TEXT
+   quantite :  NUMERIC
+   dateEntree :  INTEGER
+   dateSortie :  INTEGER
+   dateReutilisation :  INTEGER
+   datePeremption :  INTEGER
+   aCommander :  BOOLEAN
+tListeCourse
+   idCroisiere :  INTEGER
+   idListeCourse :  INTEGER
+   dateEcriture :  INTEGER
+   dateCourses :  INTEGER
+   duree :  INTEGER
+   typeAchats :  TEXT
+   faite :  BOOLEAN
+tItemsListeCourse
+   idCroisiere :  INTEGER
+   idListeCourse :  INTEGER
+   idIngredient :  INTEGER
+   idRayon :  INTEGER
+   quantite :  NUMERIC
+   trouve :  BOOLEAN
+   platsOrigine :  TEXT
+tConversions
+   idParametre :  INTEGER PRIMARY KEY
+   abbreviation :  TEXT
+   nomComplet :  TEXT
+   enMillilitres :  REAL
+   enMilligrammes :  REAL
+tEquipets
+   idBateau :  INTEGER
+   nomEquipet :  TEXT
+   idEquipet :  INTEGER
+   idPhoto :  INTEGER
+   pointX :  INTEGER
+   pointY :  INTEGER
+   labelX :  INTEGER
+   labelY :  INTEGER
+tBateau
+   idBateau :  INTEGER PRIMARY KEY
+   typeBateau :  TEXT
+tPhotos
+   idBateau :  INTEGER
+   idPhoto :  INTEGER
+   fichierPhoto :  TEXT
+tLocUstensiles
+   idCroisiere :  INTEGER
+   idUstensile :  INTEGER
+   idEquipet :  TEXT
+tpavillons
+   idPavillon :  INTEGER PRIMARY KEY
+   categoriePavillon :  INTEGER
+   bitpos :  INTEGER
+   nomPavillon :  INTEGER

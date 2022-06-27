@@ -1,0 +1,38 @@
+0/oui
+1/non
+2/Premier Plat
+3/Nom du Bateau
+4/Nom de la Croisière
+5/Date de Départ
+6/Date d'Arrivée
+7/Durée
+8/Nombre de Personnes
+9/Effacer
+10/Croisières déjà enregistrées
+11/Modifier
+12/Terminée
+13/ou
+14/Quitter
+15/Annuler
+16/Bienvenue
+17/Nouvelle Croisière
+18/Supprimer Croisière
+19/Copier Menus
+20/Coller Menus
+21/Exporter Menus
+22/Par Date Début
+23/Par Date Fin
+24/Non Terminées
+25/Terminées
+26/Paramètres
+27/Par Nom
+28/Calendrier
+29/Croisière
+30/Editer
+31/Trier
+32/Nos Croisières
+33/dd/mm/yyyy
+34/Type de Bateau
+35/Nouvelle
+36/Plannifier
+37/Toutes

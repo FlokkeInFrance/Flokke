@@ -1,0 +1,50 @@
+language/francais
+dec sep/,
+date sep//
+date format/dd/MM/yy
+meal/petit déjeuner
+meal/déjeuner
+meal/diner
+meal/collation
+meal/apéritif midi
+meal/gouter
+meal/apéritif soir
+meal/digestif
+dish/petit déjeuner
+dish/entrée
+dish/plat
+dish/dessert
+dish/crudités
+dish/apéritif
+dish/soupe
+dish/fromage
+navigation/au port
+navigation/au mouillage
+navigation/cotier
+navigation/petit temps
+navigation/traversée
+navigation/gros temps
+diet/végétarien
+diet/sans gluten
+diet/compatible diabète
+diet/contient arachide
+diet/contient kiwi
+moor/port
+moor/bouées
+moor/mouillage
+rayon/crèmerie
+rayon/légumes
+rayon/conserves
+rayon/plats
+rayon/boucherie
+rayon/charcuterie
+rayon/condiments
+rayon/aide patisserie
+rayon/aperitifs
+rayon/sucreries
+rayon/apéritifs
+rayon/thé café
+rayon/congelés
+rayon/boulangerie
+rayon/boissons
+rayon/autres
