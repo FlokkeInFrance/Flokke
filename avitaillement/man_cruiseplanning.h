@@ -16,6 +16,7 @@ sCroisiere CreateCruise();
 sCroisiere GetSelectedCruise();
 sCroisiere SelectCruiseFromList(int pos);
     bool LoadCruise(int idC);
+    void EditACruise (sCroisiere inCruise);
     void DeleteActiveCruise();
     void DeleteCruiseId(int inId);
     void ChangeNumberPersons(int nPers);
@@ -70,9 +71,8 @@ QStringList CruisesToShow(int ordered=0);
 
     //int activeCruise,activeMenuType,activeDishType,activePlanningLine,activeMenu,activeDish,activeInventory,activeIngredient,activeTool,activeShopList;
     //int activeLocker,idActiveBoat;
-    int activeCruise,idActiveBoat;
     QDate activeDate;
-    sCroisiere aCruise;
+    //sCroisiere aCruise;
     sPlanning aPlanningItem;
 
 private:

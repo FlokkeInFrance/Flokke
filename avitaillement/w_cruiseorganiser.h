@@ -16,6 +16,7 @@
 #include "linguist.h"
 #include "w_maincruisewindows.h"
 #include "datawizard.h"
+#include "debugger.h"
 
 class w_MainCruiseWindows;
 
@@ -60,13 +61,13 @@ private:
       linguist            *internat;
       sCroisiere          aCruise;
       bool                toRefresh;
+      debugger            *mydebug;
 
 public slots:
 
      void UpdateCruise();
      void UpdateDates();
      void UpdateCrew();
-     void UpdateBoatType();
      void NewCruise();
      void CommitAndPlan();
      void DeleteCruise();

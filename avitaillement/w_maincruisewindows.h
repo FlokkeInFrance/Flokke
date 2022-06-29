@@ -9,9 +9,8 @@
 #include <QMenuBar>
 #include <QLabel>
 #include <QVBoxLayout>
-#include "linguist.h"
 #include "centreop.h"
-#include "debugger.h"
+
 
 class W_CruiseOrganiser;
 

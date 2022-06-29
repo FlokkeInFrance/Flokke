@@ -23,29 +23,15 @@ void CentreOp::StartOperating(){
     myDebugs.SetDataManager(&myBuilder);
     //read the parameters
     params.ReadParameters();
-    datawizard::SetLanguage(params.GetLanguage());
-    datawizard::SetFormats(params.GetDateSep(),params.GetDateFormat(),params.GetDecimalSep());
-    //initiate the basemanager with parameter reader
-    myBuilder.MeetParameterManager(&params);
-    myBuilder.KeepDataWizard(&wiz);
-    //initiate the basepicker (with basemanager)
-    //Check the database
-
-    //fake instruction
-  /* if (myBuilder.LoadCruise(4)){ qDebug()<<"centreOP/startOP cruise succesfully loaded";myBuilder.BuildNewPlanType();}
-    else
-    {
-        myBuilder.DeleteCruiseId(3);
-        myBuilder.CreateNewCruise(QDate(2022,2,25),QDate(),"Corse",14,3,"toCome","SO 410");
-        qDebug()<<"centre OP/startop cruise";
-    }
-
-*/
-
-    //initiate the datawizard (with h the right language)
-
-    //initiate the linguist
+    //initiate other helpers
     phraseo.LoadLanguage();
+    datawizard::SetLanguage(params.GetLanguage());   
+    datawizard::SetFormats(params.GetDateSep(),params.GetDateFormat(),params.GetDecimalSep());
+
+    //initiate the basemanager with helpers and datawizard
+    myBuilder.KeepDataWizard(&wiz);
+    myBuilder.SetHelpers(this,&phraseo,&params,&myDebugs,&wiz);
+    cruiseHandler.SetHelpers(this,&phraseo,&params,&myDebugs,&wiz);
 
     qDebug()<<"CentreOP/startoperatingg intialized linguist";
 

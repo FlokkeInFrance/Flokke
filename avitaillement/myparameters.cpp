@@ -30,7 +30,7 @@ bool myparameters::ReadParameters(){
                 if (paramTag=="date sep") dateSep=paramVal;
                 if (paramTag=="date format") dateFormat=paramVal;
                 if (paramTag=="meal") {meals<<paramVal;}
-                if (paramTag=="dish") dishes<<paramVal;
+                if (paramTag=="dish") {dishes<<paramVal;}
                 if (paramTag=="navigation") navStyle<<paramVal;
                 if (paramTag=="diet") dietetics<<paramVal;
                 if (paramTag=="moor") moorings<<paramVal;
@@ -43,6 +43,7 @@ bool myparameters::ReadParameters(){
 }
 
 QStringList myparameters::GetMeals(){
+    qDebug()<<"returning parmeters meal : "<<meals[0];
     return meals;
 }
 

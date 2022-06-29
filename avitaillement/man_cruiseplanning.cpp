@@ -1,10 +1,10 @@
 #include "man_cruiseplanning.h"
+#include "debugger.h"
 
 man_cruiseplanning::man_cruiseplanning() :
     basemanager(),
-    activeCruise(0),idActiveBoat(0),
     activeDate(),
-    aCruise(),
+    //aCruise(),
     aPlanningItem(),
     aMenuType(),
     aPlanning(),
@@ -33,7 +33,7 @@ QStringList man_cruiseplanning::CruisesToShow(int ordered){
         allCruises.sort(4,Qt::AscendingOrder);
     }
     case 1:{
-        allCruises.setFilter(QString("%1 = %2").arg(BaseId(terminee).arg("0")));
+        allCruises.setFilter(QString("%1 = %2").arg(BaseId(terminee),"0"));
         allCruises.sort(4,Qt::AscendingOrder);
     }
     }
@@ -87,8 +87,14 @@ sCroisiere man_cruiseplanning::CreateCruise(){
     Initialise(aCruise);
     int incr=FindFreeSlot(tCroisiere,idCroisiere,0,"");
     aCruise.idCroisiere=incr;
+    Insert(aCruise);
     BuildNewPlanType();
     return aCruise;
+}
+
+void man_cruiseplanning::EditACruise(sCroisiere inCruise){
+    aCruise=inCruise;
+    Modify(aCruise);
 }
 
 void man_cruiseplanning::CommitNewCruise(){
@@ -96,63 +102,70 @@ void man_cruiseplanning::CommitNewCruise(){
         LoadOrCreateBoatType(aCruise.typeBateau);
         GenerateNewCruisePlan(aCruise.dateDepart,aCruise.dateFin);
         GenerateNewMenuPlan(aCruise.dateDepart,aCruise.dateFin);
+        cruiseCommited=true;
     }
-    cruiseCommited=true;
+    else
+    {
+        LoadOrCreateBoatType(aCruise.typeBateau);
+    }
     //Close cruise Editor, go for Planning
 }
 
 sCroisiere man_cruiseplanning::ChangeCruiseTiming(QDate departure, QDate arrival, int duration){
-    int dys=duration;
-    aCruise.nombreJours=duration;
-    if (departure==QDate()&&arrival==QDate()) return aCruise;
-    if (departure!=aCruise.dateDepart){
-        int diff=aCruise.dateDepart.toJulianDay()-departure.toJulianDay();
-        if (cruiseCommited)
-            ShiftCruiseNDays(diff);
-        aCruise.dateDepart=departure;
-        dys=departure.daysTo(aCruise.dateFin)+1;
-        Modify(aCruise);
-    }
-    if (arrival==QDate()) {
-        aCruise.dateFin=aCruise.dateDepart.addDays(duration);
-        aCruise.nombreJours=duration;
-    }
-    if (arrival!=aCruise.dateFin){
-        dys=aCruise.dateDepart.daysTo(arrival)+1;
-        if (dys!=aCruise.nombreJours&&cruiseCommited){
-            int diff=aCruise.nombreJours-dys;
-            if( diff>0){
-                GenerateNewCruisePlan(aCruise.dateFin.addDays(1),arrival);
-                GenerateNewMenuPlan(aCruise.dateFin.addDays(1),arrival);
-            }
-            else{
-                DeleteAfter(arrival);
-            }
-        }
-        aCruise.dateFin=arrival;
-        aCruise.nombreJours=dys;
-        Modify(aCruise);
-    }
-    if (dys!=aCruise.nombreJours){
-        int diff=aCruise.nombreJours-dys;
-        if( diff>0){
-            GenerateNewCruisePlan(aCruise.dateFin.addDays(1),aCruise.dateFin.addDays(diff));
-            GenerateNewMenuPlan(aCruise.dateFin.addDays(1),aCruise.dateFin.addDays(diff));
-        }
-        else{
-            DeleteAfter(aCruise.dateDepart.addDays(dys));
-        }
-        aCruise.dateFin=aCruise.dateDepart.addDays(dys);
-        aCruise.nombreJours=dys;
+    int dys(duration),shiftD(0),diff(0);
+    if (!dys) dys=1;
 
+    if (!departure.isValid()&&!arrival.isValid()) {
+        debug->ShowVariable("man_cruisepl : two dates are invalid detected");
+        aCruise.nombreJours=dys;
+        Modify(aCruise);
+        return aCruise;}
+
+    if (departure.isValid()&&departure!=aCruise.dateDepart){
+        shiftD=aCruise.dateDepart.toJulianDay()-departure.toJulianDay();
+        aCruise.dateDepart=departure;
+        aCruise.dateFin=departure.addDays(dys-1);
+        Modify(aCruise);
+        if (cruiseCommited){
+                ShiftCruiseNDays(shiftD);
+            }
+        return aCruise;
     }
+
+    if (dys!=aCruise.nombreJours){
+        if (!arrival.isValid()) aCruise.dateDepart=aCruise.dateFin.addDays(1-dys);
+        else
+            aCruise.dateFin=aCruise.dateDepart.addDays(dys-1);
+        diff=dys-aCruise.nombreJours;
+        aCruise.nombreJours=dys;
+        if (!cruiseCommited) {
+            Modify(aCruise);
+            return aCruise;}
+    }
+
+    if (arrival.isValid()&&arrival!=aCruise.dateFin) {
+
+        aCruise.dateFin=arrival;
+        dys=aCruise.dateDepart.daysTo(aCruise.dateFin);
+        diff=dys-aCruise.nombreJours;
+        aCruise.nombreJours=(dys+1);
+    }
+
+     if( diff>0 && cruiseCommited){
+         GenerateNewCruisePlan(aCruise.dateFin.addDays(1-diff),aCruise.dateFin);
+         GenerateNewMenuPlan(aCruise.dateFin.addDays(1),arrival);
+     }
+      else{
+        if (cruiseCommited) DeleteAfter(arrival);
+     }
+    Modify(aCruise);
     return aCruise;
 }
 
 void man_cruiseplanning::GenerateNewCruisePlan(QDate d1,QDate d2){
     if (d1<=d2){
         sLieux leg;
-        leg.idCroisiere=activeCruise;
+        leg.idCroisiere=aCruise.idCroisiere;
         leg.lieu="lieu";
         leg.commerce=false;
         leg.depannage=true;
@@ -169,7 +182,7 @@ void man_cruiseplanning::GenerateNewMenuPlan(QDate d1,QDate d2){
     if (d1<=d2){
         QVector<sMenutype> listMT=GetMenuTypeForCruise();
         sPlanning nPlan;
-        nPlan.idCroisiere=activeCruise; void AddMenuToDay(int pos);
+        nPlan.idCroisiere=aCruise.idCroisiere; void AddMenuToDay(int pos);
         int sz=listMT.size();
         int idPlanng(1);
         if (sz){
@@ -235,7 +248,6 @@ void man_cruiseplanning::LoadOrCreateBoatType(const QString &bType){
         quest.exec(selc);
         if (quest.next()){
             aCruise.typeBateau=bType;
-            idActiveBoat=quest.value(0).toInt();
         }
         else{
             int nextBoat=FindFreeSlot(tBateau,idBateau,0,"");
@@ -244,7 +256,6 @@ void man_cruiseplanning::LoadOrCreateBoatType(const QString &bType){
             nBoat.typeBateau=dw->ToSqlString(bType);
             Insert(nBoat);
             aCruise.typeBateau=bType;
-            idActiveBoat=nextBoat;
         }
     }
     else
@@ -271,7 +282,7 @@ void man_cruiseplanning::ChangeNumberPersons(int nPers){
     if (oldNP!=nPers){
         aCruise.nombrePersonnes=nPers;
         Modify(aCruise);
-        //Modify and recompute where nPersons=oldNP: tQuantites, tPrepeses
+        //Modify and recompute where nPersons=oldNP: tQuantites
         //Modify only : tIComposition,tMEnutype,tPlattype,tPlanning
         //first get list of dishes in tIComposition where nbPersons = oldNP idPlanning and idPlat
         QString snPers=dw->ToSqlIntegerString(nPers);
@@ -281,20 +292,20 @@ void man_cruiseplanning::ChangeNumberPersons(int nPers){
         vals<<dw->ToSqlIntegerString(aCruise.idCroisiere)<<dw->ToSqlIntegerString(oldNP);
         Modify(tMenutype,nombrePersonnes,snPers,fields,vals);
         Modify(tPlattype,nombrePersonnes,snPers,fields,vals);
-        QString whereP=MakeAndWhereString(fields,vals);
-        whereP=whereP+" AND "+MakeWhereString(dateRepas,dw->ToSqlJulian(QDate::currentDate()),">=");
-        Modify(tPlanning,nombrePersonnes,snPers,whereP);
+        if (cruiseCommited){
+            QString whereP=MakeAndWhereString(fields,vals);
+            whereP=whereP+" AND "+MakeWhereString(dateRepas,dw->ToSqlJulian(QDate::currentDate()),">=");
+            Modify(tPlanning,nombrePersonnes,snPers,whereP);
+        }
 //Select idPlat from tIComposition Where numberPersons=oldNP Join tPlanning on tIcomposition.idPlanning=tPlanning.idPlanning AND tPlanning.dateRepas>=Today
     }
 }
 
 void man_cruiseplanning::DeleteActiveCruise(){
-    DeleteCruiseId(activeCruise);
+    DeleteCruiseId(aCruise.idCroisiere);
     //reintialise all status vars
-    activeCruise=(0);
     aCruise.nombreJours=0;
     aCruise.nombrePersonnes=0;
-    idActiveBoat=0;
     activeDate=QDate();
     aCruise.dateDepart=QDate();
     aCruise.dateFin=QDate();
@@ -331,6 +342,7 @@ void man_cruiseplanning::BuildNewPlanType(){
     Initialise(mt);
     Initialise(pt);
     mt.idCroisiere=aCruise.idCroisiere;
+    mt.idMenuType=1;
     mt.nombrePersonnes=aCruise.nombrePersonnes;
     pt.idCroisiere=aCruise.idCroisiere;
     pt.nombrePersonnes=aCruise.nombrePersonnes;
@@ -362,11 +374,11 @@ void man_cruiseplanning::AddNewMenuToType(QString inType, int inPos){
 //add the type to tMenutype nPos=0 : append, nPos=1 prepend
     if (inPos>0){
         posinsert=inPos;
-        ShiftIndex(tMenutype,idMenuType,inPos,idCroisiere,datawizard::ToSqlIntegerString(activeCruise));
-        ShiftIndex(tPlattype,idMenuType,inPos,idCroisiere,datawizard::ToSqlIntegerString(activeCruise));
+        ShiftIndex(tMenutype,idMenuType,inPos,idCroisiere,datawizard::ToSqlIntegerString(aCruise.idCroisiere));
+        ShiftIndex(tPlattype,idMenuType,inPos,idCroisiere,datawizard::ToSqlIntegerString(aCruise.idCroisiere));
     }
     else {
-        posinsert=FindLastIdx(tMenutype,idMenuType,idCroisiere,datawizard::ToSqlIntegerString(activeCruise));
+        posinsert=FindLastIdx(tMenutype,idMenuType,idCroisiere,datawizard::ToSqlIntegerString(aCruise.idCroisiere));
     }
     sMenutype mt;
     Initialise(mt);

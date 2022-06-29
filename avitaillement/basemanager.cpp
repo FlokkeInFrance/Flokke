@@ -1,7 +1,13 @@
 #include "basemanager.h"
+#include "debugger.h"
+#include "centreop.h"
+
+sCroisiere basemanager::aCruise=sCroisiere();
 
 basemanager::basemanager() :
 
+    myCenter(nullptr),
+    debug(nullptr),
     dw(nullptr),
     langue(nullptr),
     db(QSqlDatabase::database()),
@@ -45,6 +51,16 @@ QString basemanager::BaseId(int inId){
 void basemanager::SetLinguist(linguist *inlang){
     langue=inlang;
 }
+
+void basemanager::SetHelpers(CentreOp *inCenter, linguist *inlang, myparameters *inparam, debugger *indebug, datawizard *indata){
+ myCenter=inCenter;
+ langue=inlang;
+ paramMan=inparam;
+ debug=indebug;
+ dw=indata;
+
+}
+
 
 QString basemanager::CommaList(const stringvect &inList, bool withParethesis){
     QString ret("");
@@ -101,7 +117,7 @@ QString basemanager::MakeWhereClause(intvect const &wherefield, const stringvect
 
 QString basemanager::MakeWhereString(int field, const QString &rightPart, const QString &comp){
     if (!field) return ("");
-    QString ret=QString("%1 %2 %3").arg(BaseId(field),rightPart,comp);
+    QString ret=QString("%1 %2 %3").arg(BaseId(field),comp,rightPart);
     return ret;
 }
 
@@ -123,6 +139,16 @@ QString basemanager::MakeAndWhereString(const intvect &wherefield, const stringv
         if (idx<sz-1) whereList=whereList+(" AND ");
     }
     return whereList;
+}
+
+QString basemanager::MakeSetString(const intvect &setfield, const stringvect &setVal){
+    QString setList("");
+    int sz=setfield.size();
+    for (int idx(0);idx<sz;idx++){
+        setList=setList+QString("%1 = %2").arg(BaseId(setfield[idx]), setVal[idx]);
+        if (idx<sz-1) setList=setList+(",");
+    }
+    return setList;
 }
 
 int  basemanager::FindFreeSlot(int tableN,int targetField, int whereField, const QString &whereValue){
@@ -206,14 +232,14 @@ void basemanager::Modify(int tableName,  int fieldName,  const QString &nVal, in
 }
 
 void basemanager::Modify( int tableName,  const intvect fieldNames,  const stringvect &nVals,const intvect &idFields,const stringvect &idVal){
-    QString setString=MakeAndWhereString(fieldNames,nVals);
+    QString setString=MakeSetString(fieldNames,nVals);
     QString whereString=MakeAndWhereString(idFields,idVal);
     QString updateQ=QString("UPDATE %1 SET %2 WHERE %3").arg(BaseId(tableName),setString,whereString);
     OrderAndCommit(updateQ);
 }
 
 void basemanager::Modify( int tableName,  const intvect fieldNames,  const stringvect &nVals, int idField, const QString &idVal){
-    QString fieldN(MakeAndWhereString(fieldNames,nVals));
+    QString fieldN(MakeSetString(fieldNames,nVals));
 
     QString updateQ=QString("UPDATE %1 SET %2 WHERE %4=%5").arg(BaseId(tableName),fieldN,BaseId(idField),idVal);
     OrderAndCommit(updateQ);
@@ -272,7 +298,7 @@ void basemanager::DoSimpleSelectAllFields(int inTable,int inleftPart, int rightP
 void basemanager::DoSelectOneField(int inTable, int inField, const QString &whereString, intvect order){
     QString selS("");
     if (whereString.isEmpty())
-        selS=QString("SELECT %1 FROM %2").arg(BaseId(inTable),BaseId(inField));
+        selS=QString("SELECT %1 FROM %2").arg(BaseId(inField),BaseId(inTable));
     else
         selS=QString("SELECT %1 FROM %2 WHERE %3").arg(BaseId(inTable),BaseId(inField),whereString);
     if (order.size()) selS=selS+QString(" ORDER BY %1").arg(SpacedCommaFieldList(order));
@@ -282,7 +308,7 @@ void basemanager::DoSelectOneField(int inTable, int inField, const QString &wher
 void basemanager::DoSelectOneField(int inTable, int inField, const QString &whereString, int order){
     QString selS("");
     if (whereString.isEmpty())
-        selS=QString("SELECT %1 FROM %2").arg(BaseId(inTable),BaseId(inField));
+        selS=QString("SELECT %1 FROM %2").arg(BaseId(inField),BaseId(inTable));
     else
         selS=QString("SELECT %1 FROM %2 WHERE %3").arg(BaseId(inTable),BaseId(inField),whereString);
     if (order) selS=selS+QString(" ORDER BY %1").arg(BaseId(order));
@@ -290,13 +316,13 @@ void basemanager::DoSelectOneField(int inTable, int inField, const QString &wher
 }
 
 void basemanager::DoSelectSomeFields(int inTable, const intvect &inField, const QString &whereString, int order){
-    QString selS=QString("SELECT %1 FROM %2 WHERE %3").arg(BaseId(inTable),SpacedCommaFieldList(inField),whereString);
+    QString selS=QString("SELECT %1 FROM %2 WHERE %3").arg(SpacedCommaFieldList(inField),BaseId(inTable),whereString);
     if (order) selS=selS+QString(" ORDER BY %1").arg(BaseId(order));
     ExecuteSelect(selS);
 }
 
 void basemanager::DoSelectSomeFields(int inTable, const intvect &inField, const QString &whereString, intvect order){
-    QString selS=QString("SELECT %1 FROM %2 WHERE %3").arg(BaseId(inTable),SpacedCommaFieldList(inField),whereString);
+    QString selS=QString("SELECT %1 FROM %2 WHERE %3").arg(SpacedCommaFieldList(inField),BaseId(inTable),whereString);
     if (order.size()) selS=selS+QString(" ORDER BY %1").arg(SpacedCommaFieldList(order));
     ExecuteSelect(selS);
 }

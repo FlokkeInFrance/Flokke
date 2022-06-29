@@ -29,9 +29,10 @@ W_CruiseOrganiser::W_CruiseOrganiser(QWidget *parent) : QWidget(parent),
        cruiseHandler(nullptr),
        internat(nullptr),
        aCruise(),
-       toRefresh(true)
-{
+       toRefresh(true),
+       mydebug(nullptr)
 
+{
 }
 
 QString W_CruiseOrganiser::getWord(int inCode){
@@ -46,11 +47,11 @@ void W_CruiseOrganiser::ObjectModel(){
     connect(listCruises,SIGNAL(currentRowChanged(int)),SLOT(ListClicked(int)));
     connect(cruiseName,SIGNAL(editingFinished()),SLOT(UpdateCruise()));
     connect(boatName,SIGNAL(editingFinished()),SLOT(UpdateCruise()));
-    connect(boatType,SIGNAL(editingFinished()),SLOT(UpdateBoatType()));
+    connect(boatType,SIGNAL(editingFinished()),SLOT(UpdateCruise()));
     connect(startCruise,SIGNAL(editingFinished()),SLOT(UpdateDates()));
     connect(endCruise,SIGNAL(editingFinished()),SLOT(UpdateDates()));
     connect(nbDays,SIGNAL(editingFinished()),SLOT(UpdateDates()));
-    connect(cruiseFinished,SIGNAL(editingFinished()),SLOT(UpdateCruise()));
+    connect(cruiseFinished,SIGNAL(stateChanged(int)),SLOT(UpdateCruise()));
     connect(nbOfSailors,SIGNAL(editingFinished()),SLOT(UpdateCrew()));
 }
 
@@ -60,8 +61,11 @@ void W_CruiseOrganiser::setCenterOp(CentreOp *ctr){
     setLayout(mainLayout);
     title->setText(wT(OurCruises));
     cruiseHandler=center->GetCruiseHandler();
+    mydebug=center->getDebugger();
     setupWidget();
     resetViews();
+    getCruiseList();
+    mydebug->ShowVariable("setCenterOp before object model");
     ObjectModel();
 }
 
@@ -152,7 +156,11 @@ void W_CruiseOrganiser::getCruiseList(){
          listCruises->setCurrentRow(0);
          showActiveCruise();
     }else
-    listCruises->addItem("croisières");
+    {
+        listCruises->addItem("croisières");
+        aCruise=cruiseHandler->CreateCruise();
+        showActiveCruise();
+    }
 }
 
 
@@ -176,7 +184,8 @@ void W_CruiseOrganiser::UpdateCruise(){
         if (cruiseFinished->isChecked()) aCruise.terminee=true;
         aCruise.nombreJours=nbDays->value();
         aCruise.nombrePersonnes=nbOfSailors->value();
-        cruiseHandler->Modify(aCruise);
+
+        cruiseHandler->EditACruise(aCruise);
     }
 }
 
@@ -187,14 +196,13 @@ void W_CruiseOrganiser::UpdateDates(){
 
 void W_CruiseOrganiser::UpdateCrew(){
     cruiseHandler->ChangeNumberPersons(nbOfSailors->value());
-}
-
-void W_CruiseOrganiser::UpdateBoatType(){
-    cruiseHandler->ChangeBoatType(boatType->text());
+    showActiveCruise();
 }
 
 void W_CruiseOrganiser::NewCruise(){
-    cruiseHandler->CreateCruise();
+    listCruises->clear();
+    listCruises->addItems(cruiseHandler->CruisesToShow());
+    aCruise=cruiseHandler->CreateCruise();
     showActiveCruise();
     //update CruiseList
 }

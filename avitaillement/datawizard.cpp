@@ -234,7 +234,9 @@ QDate datawizard::FromSqlJulian(QVariant inDate){
 }
 
 QString datawizard::PrintSqlJulian(QVariant inDate){
-    return(inDate.toDate().toString(dateFormat));
+    qint64 jd(inDate.toInt());
+    QDate toret(QDate::fromJulianDay(jd));
+    return(toret.toString(dateFormat));
 }
 
 QString datawizard::ToSqlNumeric(float inNum,bool withComma){

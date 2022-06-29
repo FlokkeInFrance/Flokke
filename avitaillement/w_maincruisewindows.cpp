@@ -42,7 +42,6 @@ void w_MainCruiseWindows::SetOperations(CentreOp *inOp){
 
     setCentralWidget(cruises);
     BuildActions();
-    debugs->ShowVariable(wT(Cruise));
 }
 
 void w_MainCruiseWindows::BuildActions(){

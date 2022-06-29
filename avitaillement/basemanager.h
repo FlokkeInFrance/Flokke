@@ -29,16 +29,19 @@
 #include <QSqlError>
 #include <QSqlField>
 #include <QDate>
-#include <datawizard.h>
-#include <myparameters.h>
-#include <QDebug>
+#include "datawizard.h"
+#include "myparameters.h"
 #include "linguist.h"
 
 using intvect=QVector<int>;
 using stringvect=QVector<QString>;
 
+class debugger;
+class CentreOp;
+
 class basemanager
 {
+
 public:
 
     //Initializations
@@ -47,6 +50,7 @@ public:
     void KeepDataWizard(datawizard *indatawizard);
     void MeetParameterManager(myparameters* inparam);
     void SetLinguist (linguist* inlang);
+    void SetHelpers (CentreOp* inCenter,linguist* inlang,myparameters* inparam, debugger* indebug, datawizard* indata);
 
 
     //General Base managers
@@ -66,6 +70,7 @@ public:
     QString MakeWhereString(int field, const QString &rightPart, const QString &comp="=");
     QString MakeAndWhereString(const intvect &wherefield, const stringvect &whereVal, const stringvect &comp);
     QString MakeAndWhereString(const intvect &wherefield, const stringvect &whereVal);
+    QString MakeSetString(const intvect &wherefield, const stringvect &whereVal);
 
     void    DoSelectAllFields(int inTable, const QString &whereString, intvect order=intvect());
     void    DoSimpleSelectAllFields(int inTable,int inleftPart, int rightPart, intvect order=intvect());
@@ -221,16 +226,19 @@ public:
      void Initialise(sPavillons &inR);
      bool ReadRecord (sPavillons &inR);
 
+     void selectCruise(sCroisiere inCruise);
 
-
+static sCroisiere aCruise;
 
 protected:
-
+    CentreOp *myCenter;
+    debugger *debug;
     datawizard *dw;
     linguist *langue;
     QSqlDatabase db;
     myparameters* paramMan;
     QSqlQuery quest;
+
 };
 
 #endif // BASEMANAGER_H
